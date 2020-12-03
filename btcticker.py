@@ -61,7 +61,7 @@ def getData():
         # url= "https://rest.coinapi.io/v1/assets/btc"
         url = "https://rest.coinapi.io/v1/exchangerate/BTC/CAD?apikey=" + COINAPI_KEY
         response = requests.get(url).json()
-        VALUE = float(response['data']['rate'])
+        VALUE = float(response['rate'])
         logging.info("Got Live Data From CoinAPI")
     except:
         logging.info("Failed to load data from CoinAPI")
@@ -71,13 +71,12 @@ def getData():
         rawtimeseries = requests.get(url).json()
         logging.info("Got Historic Data For Last Week")
     except:
-        #coinbase doesn't seem to do time-series data without an API key use a stored pool of 1 week of BTC USD price data
-        fallbackurl = "https://llvll.ch/fallbackurlhistoric.json"
-        rawtimeseries = requests.get(fallbackurl).json()
-    timeseriesarray = rawtimeseries['data']
-    logging.info(timeseriesarray)
+        logging.info("Failed to 7 days data from CoinAPI")
+
+ 
+    logging.info(rawtimeseries)
     timeseriesstack = []
-    length=len (timeseriesarray)
+    length=len (rawtimeseries)
     i=0
     while i < length:
         timeseriesstack.append(float (timeseriesarray[i]['price_close']))
