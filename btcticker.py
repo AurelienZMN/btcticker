@@ -79,7 +79,7 @@ def getData():
     length=len (rawtimeseries)
     i=0
     while i < length:
-        timeseriesstack.append(float (timeseriesarray[i]['price_close']))
+        timeseriesstack.append(float (rawtimeseries[i]['price_close']))
         i+=1
     # Get the live price from coinapi
 
