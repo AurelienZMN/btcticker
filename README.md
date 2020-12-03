@@ -11,6 +11,13 @@ A few minutes work gives you a desk ornament that will tastefully monitor BTC's 
 
 (These instructions assume that your Raspberry Pi is already connected to the Internet, happily running pip and has Python3 installed)
 
+Don't forget to set your timezone
+```
+sudo raspi-config
+4 Localisation Options
+Change Time Zone
+```
+
 If you are running the Pi headless, connect to your Raspberry Pi using ssh.
 
 Copy the files from this repository onto the Pi, or clone using:
