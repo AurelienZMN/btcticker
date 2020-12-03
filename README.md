@@ -16,15 +16,16 @@ If you are running the Pi headless, connect to your Raspberry Pi using ssh.
 Copy the files from this repository onto the Pi, or clone using:
 
 ```
-git clone https://github.com/llvllch/btcticker.git
+git clone https://github.com/AurelienZMN/btcticker.git
 cd btcticker
 ```
 
 
-Install the required modules using pip:
+Install the required modules:
 
 ```
-python3 -m pip install -r requirements.txt
+sudo pip3 install -r requirements.txt
+sudo python3 setup.py install
 ```
 
 and install the Waveshare Python module following the instructions on their [Wiki](https://www.waveshare.com/wiki/2.7inch_e-Paper_HAT).
@@ -50,15 +51,6 @@ The ticker will now pull data every 10 minutes and update the display.
 # Settings
 
 Screen orientation and screen inversion can be toggled using the on-screen keys. Update frequency can be changed in the config.yaml file (default is 600 seconds).
-
-# Contributing
-
-To contribute, please fork the repository and use a feature branch. Pull requests are welcome.
-
-# Links
-
-- A low(er)-effort kit and frame can be obtained at [https://llvll.ch/btcticker.html](https://llvll.ch/btcticker.html)
-
 
 # Licencing
 
