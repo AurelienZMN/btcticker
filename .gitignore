@@ -2,3 +2,5 @@ build/
 dist/
 
 .env
+
+.btcticker.py.swp
