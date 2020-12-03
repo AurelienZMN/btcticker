@@ -4,17 +4,25 @@
 from PIL import Image, ImageOps
 from PIL import ImageFont
 from PIL import ImageDraw
+<<<<<<< HEAD
 from dotenv import load_dotenv
 load_dotenv()
+=======
+COINAPI_KEY = os.getenv("COINAPI_KEY")
+>>>>>>> parent of fc1d6f5... Update btcticker.py
 
 import os
 import sys
 
+<<<<<<< HEAD
 COINAPI_KEY = os.getenv('COINAPI_KEY')
 
 libdir = \
     os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
                  'lib')
+=======
+libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
+>>>>>>> parent of fc1d6f5... Update btcticker.py
 if os.path.exists(libdir):
     sys.path.append(libdir)
 
