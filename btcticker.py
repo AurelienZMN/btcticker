@@ -2,6 +2,7 @@
 from PIL import Image, ImageOps
 from PIL import ImageFont
 from PIL import ImageDraw
+from dotenv import load_dotenv
 
 import os
 import sys
