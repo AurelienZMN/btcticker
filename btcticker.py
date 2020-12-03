@@ -1,9 +1,14 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 from PIL import Image, ImageOps
 from PIL import ImageFont
 from PIL import ImageDraw
 import os
 import sys
+
+libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
+if os.path.exists(libdir):
+    sys.path.append(libdir)
+
 import logging
 import RPi.GPIO as GPIO
 from waveshare_epd import epd2in7
