@@ -52,13 +52,11 @@ def getData():
     """
     The function to update the ePaper display. There are two versions of the layout. One for portrait aspect ratio, one for landscape.
     """
-    logging.info(COINAPI_KEY)
     logging.info("Updating Display")   
     logging.info("Getting Historical Data From CoinAPI")
 
 
     try:
-        # url= "https://rest.coinapi.io/v1/assets/btc"
         url = "https://rest.coinapi.io/v1/exchangerate/BTC/CAD?apikey=" + COINAPI_KEY
         response = requests.get(url).json()
         VALUE = float(response['rate'])
@@ -73,10 +71,9 @@ def getData():
     except:
         logging.info("Failed to 7 days data from CoinAPI")
 
- 
-    logging.info(rawtimeseries)
     timeseriesstack = []
     length=len (rawtimeseries)
+    
     i=0
     while i < length:
         timeseriesstack.append(float (rawtimeseries[i]['price_close']))
