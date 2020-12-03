@@ -67,7 +67,7 @@ def getData():
         logging.info("Failed to load data from CoinAPI")
 
     try:
-        url = "https://rest.coinapi.io/v1/ohlcv/BTC/CAD/latest?period_id=7DAY&" + COINAPI_KEY
+        url = "https://rest.coinapi.io/v1/ohlcv/BTC/CAD/latest?period_id=7DAY&apikey=" + COINAPI_KEY
         rawtimeseries = requests.get(url).json()
         logging.info("Got Historic Data For Last Week")
     except:
