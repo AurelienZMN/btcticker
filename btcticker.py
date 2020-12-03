@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from PIL import Image, ImageOps
 from PIL import ImageFont
-from PIL import ImageDraw3
+from PIL import ImageDraw
 
 import os
 import sys
