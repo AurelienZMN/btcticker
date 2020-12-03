@@ -28,6 +28,14 @@ sudo pip3 install -r requirements.txt
 sudo python3 setup.py install
 ```
 
+Create a .env file:
+
+```
+touch .env
+```
+
+and add a coin api key named ``COINAPI_KEY=XXX`` inside the .env file.
+
 and install the Waveshare Python module following the instructions on their [Wiki](https://www.waveshare.com/wiki/2.7inch_e-Paper_HAT).
 
 If you'd like the script to persist once you close the session, use [screen](https://linuxize.com/post/how-to-use-linux-screen/).
