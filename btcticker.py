@@ -2,6 +2,8 @@
 from PIL import Image, ImageOps
 from PIL import ImageFont
 from PIL import ImageDraw
+COINAPI_KEY = os.getenv("COINAPI_KEY")
+
 import os
 import sys
 
@@ -53,44 +55,36 @@ def getData():
 
 
     try:
-        livecoinapi= "https://api.coincap.io/v2/assets/bitcoin/"
-        rawlivecoin = requests.get(livecoinapi).json()
-        liveprice= rawlivecoin['data']   
-        BTC = float(liveprice['priceUsd'])
+        # url= "https://rest.coinapi.io/v1/assets/btc"
+        url = "https://rest.coinapi.io/v1/exchangerate/BTC/CAD?apikey=" + COINAPI_KEY
+        response = requests.get(url).json()
+        VALUE = float(response['data']['rate'])
         logging.info("Got Live Data From CoinAPI")
     except:
-        fallbackpriceurl = "https://api.coinbase.com/v2/prices/spot?currency=USD"
-        rawlivecoin = requests.get(fallbackpriceurl).json()
-        liveprice= rawlivecoin['data']   
-        BTC = float(liveprice['amount'])
-        logging.info("Got Live Data From Coinbase")
+        logging.info("Failed to load data from CoinAPI")
 
     try:
-        # Form the Coinapi call
-        now_msec_from_epoch = int(round(time.time() * 1000))
-        days_ago = 7
-        endtime = now_msec_from_epoch
-        starttime = endtime - 1000*60*60*24*days_ago
-        coinapi = "https://api.coincap.io/v2/assets/bitcoin/history?interval=h1&start="+str(starttime)+"&end="+str(endtime)
-        rawtimeseries = requests.get(coinapi).json()
+        url = "https://rest.coinapi.io/v1/ohlcv/BTC/CAD/latest?period_id=7DAY&" + COINAPI_KEY
+        rawtimeseries = requests.get(url).json()
         logging.info("Got Historic Data For Last Week")
     except:
         #coinbase doesn't seem to do time-series data without an API key use a stored pool of 1 week of BTC USD price data
         fallbackurl = "https://llvll.ch/fallbackurlhistoric.json"
         rawtimeseries = requests.get(fallbackurl).json()
     timeseriesarray = rawtimeseries['data']
+    logging.info(timeseriesarray)
     timeseriesstack = []
     length=len (timeseriesarray)
     i=0
     while i < length:
-        timeseriesstack.append(float (timeseriesarray[i]['priceUsd']))
+        timeseriesstack.append(float (timeseriesarray[i]['price_close']))
         i+=1
     # Get the live price from coinapi
 
 
 
     # Add live price to timeseriesstack
-    timeseriesstack.append(BTC)
+    timeseriesstack.append(VALUE)
     return timeseriesstack
 
 def makeSpark(pricestack):
