@@ -1,11 +1,12 @@
 #!/usr/bin/python
 from PIL import Image, ImageOps
 from PIL import ImageFont
-from PIL import ImageDraw
-COINAPI_KEY = os.getenv("COINAPI_KEY")
+from PIL import ImageDraw3
 
 import os
 import sys
+
+COINAPI_KEY = os.getenv("COINAPI_KEY")
 
 libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
 if os.path.exists(libdir):
