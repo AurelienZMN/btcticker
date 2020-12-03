@@ -50,7 +50,7 @@ def getData():
     """
     The function to update the ePaper display. There are two versions of the layout. One for portrait aspect ratio, one for landscape.
     """
-
+    logging.info(COINAPI_KEY)
     logging.info("Updating Display")   
     logging.info("Getting Historical Data From CoinAPI")
 
