@@ -1,37 +1,44 @@
 #!/usr/bin/python
+import yaml
+import json
+import urllib
+import socket
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import requests
+import time
+from waveshare_epd import epd2in7
+import RPi.GPIO as GPIO
+import logging
+import sys
+import os
 from PIL import Image, ImageOps
 from PIL import ImageFont
 from PIL import ImageDraw
 from dotenv import load_dotenv
 load_dotenv()
 
-import os
-import sys
 
 COINAPI_KEY = os.getenv("COINAPI_KEY")
 
-libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
+libdir = os.path.join(os.path.dirname(
+    os.path.dirname(os.path.realpath(__file__))), 'lib')
 if os.path.exists(libdir):
     sys.path.append(libdir)
 
-import logging
-import RPi.GPIO as GPIO
-from waveshare_epd import epd2in7
-import time
-import requests
-import urllib, json
-import matplotlib as mpl
 mpl.use('Agg')
-import matplotlib.pyplot as plt
-import numpy as np
-import yaml 
-import socket
 picdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images')
 fontdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fonts')
-configfile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'config.yaml')
-font = ImageFont.truetype(os.path.join(fontdir,'googlefonts/Roboto-Medium.ttf'), 40)
-fontHorizontal = ImageFont.truetype(os.path.join(fontdir,'googlefonts/Roboto-Medium.ttf'), 50)
-font_date = ImageFont.truetype(os.path.join(fontdir,'PixelSplitter-Bold.ttf'),11)
+configfile = os.path.join(os.path.dirname(
+    os.path.realpath(__file__)), 'config.yaml')
+font = ImageFont.truetype(os.path.join(
+    fontdir, 'googlefonts/Roboto-Medium.ttf'), 40)
+fontHorizontal = ImageFont.truetype(os.path.join(
+    fontdir, 'googlefonts/Roboto-Medium.ttf'), 50)
+font_date = ImageFont.truetype(os.path.join(
+    fontdir, 'PixelSplitter-Bold.ttf'), 11)
+
 
 def internet(host="8.8.8.8", port=53, timeout=3):
     """
@@ -52,9 +59,8 @@ def getData():
     """
     The function to update the ePaper display. There are two versions of the layout. One for portrait aspect ratio, one for landscape.
     """
-    logging.info("Updating Display")   
+    logging.info("Updating Display")
     logging.info("Getting Historical Data From CoinAPI")
-
 
     try:
         url = "https://rest.coinapi.io/v1/exchangerate/BTC/CAD?apikey=" + COINAPI_KEY
@@ -72,108 +78,69 @@ def getData():
         logging.info("Failed to 7 days data from CoinAPI")
 
     timeseriesstack = []
-    length=len (rawtimeseries)
-    
-    i=0
+    length = len(rawtimeseries)
+
+    i = 0
     while i < length:
-        timeseriesstack.append(float (rawtimeseries[i]['price_close']))
-        i+=1
+        timeseriesstack.append(float(rawtimeseries[i]['price_close']))
+        i += 1
     # Get the live price from coinapi
-
-
 
     # Add live price to timeseriesstack
     timeseriesstack.append(VALUE)
     return timeseriesstack
 
+
 def makeSpark(pricestack):
 
-    # Subtract the mean from the sparkline to make the mean appear on the plot (it's really the x axis)    
+    # Subtract the mean from the sparkline to make the mean appear on the plot (it's really the x axis)
     x = pricestack-np.mean(pricestack)
 
-    fig, ax = plt.subplots(1,1,figsize=(10,3))
+    fig, ax = plt.subplots(1, 1, figsize=(10, 3))
     plt.plot(x, color='k', linewidth=6)
     plt.plot(len(x)-1, x[-1], color='r', marker='o')
 
     # Remove the Y axis
-    for k,v in ax.spines.items():
+    for k, v in ax.spines.items():
         v.set_visible(False)
     ax.set_xticks([])
     ax.set_yticks([])
     ax.axhline(c='k', linewidth=4, linestyle=(0, (5, 2, 1, 2)))
 
     # Save the resulting bmp file to the images directory
-    plt.savefig(os.path.join(picdir,'spark.png'), dpi=17)
-    imgspk = Image.open(os.path.join(picdir,'spark.png'))
-    file_out = os.path.join(picdir,'spark.bmp')
-    imgspk.save(file_out) 
+    plt.savefig(os.path.join(picdir, 'spark.png'), dpi=17)
+    imgspk = Image.open(os.path.join(picdir, 'spark.png'))
+    file_out = os.path.join(picdir, 'spark.bmp')
+    imgspk.save(file_out)
 
-def updateDisplay(config,pricestack):    
+
+def updateDisplay(config, pricestack):
+
     BTC = pricestack[-1]
-    bmp = Image.open(os.path.join(picdir,'BTC.bmp'))
-    bmp2 = Image.open(os.path.join(picdir,'spark.bmp'))
-    if config['ticker']['hidden'] == True:
-        if config['display']['orientation'] == 0 or config['display']['orientation'] == 180 :
-            epd = epd2in7.EPD()
-            epd.Init_4Gray()
-            image = Image.new('L', (epd.width, epd.height), 255)    # 255: clear the image with white
-            image.paste(bmp, (10,20)) 
-            draw = ImageDraw.Draw(image)
-            draw.text((5,200),"1 BTC",font =font,fill = 0)             
-            draw.text((0,10),str(time.strftime("%c")),font =font_date,fill = 0)
-            if config['display']['orientation'] == 180 :
-                image=image.rotate(180, expand=True)
+    bmp = Image.open(os.path.join(picdir, 'BTC.bmp'))
+    bmp2 = Image.open(os.path.join(picdir, 'spark.bmp'))
+
+    epd = epd2in7.EPD()
+    epd.Init_4Gray()
+    # 255: clear the image with white
+    image = Image.new('L', (epd.width, epd.height), 255)
+    draw = ImageDraw.Draw(image)
+    draw.text((110, 80), "7day :", font=font_date, fill=0)
+    draw.text((110, 95), str(
+        "%+d" % round((pricestack[-1]-pricestack[1])/pricestack[-1]*100, 2))+"%", font=font_date, fill=0)
+    draw.text((5, 200), "$"+format(int(round(BTC)), ","), font=font, fill=0)
+    draw.text((0, 10), str(time.strftime("%c")), font=font_date, fill=0)
+    image.paste(bmp, (10, 25))
+    image.paste(bmp2, (10, 125))
 
 
-        if config['display']['orientation'] == 90 or config['display']['orientation'] == 270 :
-            epd = epd2in7.EPD()
-            epd.Init_4Gray()
-            image = Image.new('L', (epd.height, epd.width), 255)    # 255: clear the image with white
-            image.paste(bmp, (0,0))
-            draw = ImageDraw.Draw(image)
-            draw.text((20,120),"1 BTC",font =fontHorizontal,fill = 0)
-            draw.text((85,5),str(time.strftime("%c")),font =font_date,fill = 0)
-            if config['display']['orientation'] == 270 :
-                image=image.rotate(180, expand=True)
-    #       This is a hack to deal with the mirroring that goes on in 4Gray Horizontal
-            image = ImageOps.mirror(image)
-    else:
-        if config['display']['orientation'] == 0 or config['display']['orientation'] == 180 :
-            epd = epd2in7.EPD()
-            epd.Init_4Gray()
-            image = Image.new('L', (epd.width, epd.height), 255)    # 255: clear the image with white
-            draw = ImageDraw.Draw(image)              
-            draw.text((110,80),"7day :",font =font_date,fill = 0)
-            draw.text((110,95),str("%+d" % round((pricestack[-1]-pricestack[1])/pricestack[-1]*100,2))+"%",font =font_date,fill = 0)
-            draw.text((5,200),"$"+format(int(round(BTC)),","),font =font,fill = 0)
-            draw.text((0,10),str(time.strftime("%c")),font =font_date,fill = 0)
-            image.paste(bmp, (10,25))
-            image.paste(bmp2,(10,125))
-            if config['display']['orientation'] == 180 :
-                image=image.rotate(180, expand=True)
-
-
-        if config['display']['orientation'] == 90 or config['display']['orientation'] == 270 :
-            epd = epd2in7.EPD()
-            epd.Init_4Gray()
-            image = Image.new('L', (epd.height, epd.width), 255)    # 255: clear the image with white
-            draw = ImageDraw.Draw(image)   
-            draw.text((100,100),"7day : "+str("%+d" % round((pricestack[-1]-pricestack[1])/pricestack[-1]*100,2))+"%",font =font_date,fill = 0)
-            draw.text((20,120),"$"+format(int(round(BTC)),","),font =fontHorizontal,fill = 0)
-            image.paste(bmp2,(80,50))
-            image.paste(bmp, (0,0))
-            draw.text((85,5),str(time.strftime("%c")),font =font_date,fill = 0)
-            if config['display']['orientation'] == 270 :
-                image=image.rotate(180, expand=True)
-    #       This is a hack to deal with the mirroring that goes on in 4Gray Horizontal
-            image = ImageOps.mirror(image)
-
-#   If the display is inverted, invert the image usinng ImageOps        
+#   If the display is inverted, invert the image usinng ImageOps
     if config['display']['inverted'] == True:
         image = ImageOps.invert(image)
-#   Send the image to the screen        
+#   Send the image to the screen
     epd.display_4Gray(epd.getbuffer_4Gray(image))
     epd.sleep()
+
 
 def main():
 
@@ -187,7 +154,8 @@ def main():
             config = yaml.load(f, Loader=yaml.FullLoader)
         logging.info(config)
         GPIO.setmode(GPIO.BCM)
-        config['display']['orientation']=int(config['display']['orientation'])
+        config['display']['orientation'] = int(
+            config['display']['orientation'])
 
         key1 = 5
         key2 = 6
@@ -201,10 +169,10 @@ def main():
 
 
 #       Note that there has been no data pull yet
-        datapulled=False 
+        datapulled = False
 #       Time of start
         lastcoinfetch = time.time()
-     
+
         while True:
             key1state = GPIO.input(key1)
             key2state = GPIO.input(key2)
@@ -215,46 +183,18 @@ def main():
                 if key1state == False:
                     logging.info('Force Refresh')
                     # get data
-                    pricestack=getData()
-                    # save time of last data update 
+                    pricestack = getData()
+                    # save time of last data update
                     lastcoinfetch = time.time()
                     # generate sparkline
                     makeSpark(pricestack)
                     # update display
                     updateDisplay(config, pricestack)
                     time.sleep(0.2)
-                if key2state == False:
-                    logging.info('ROTATE90')
-                    config['display']['orientation'] = (config['display']['orientation']+90) % 360
-                    time.sleep(0.2)
-                    # updatedisplay
-                    updateDisplay(config, pricestack)
-                    with open('config.yaml', 'w') as f:
-                       data = yaml.dump(config, f)
-                if key3state == False:
-                    logging.info('INVERT')
-                    if config['display']['inverted'] == True:
-                       config['display']['inverted'] = False
-                    else:
-                       config['display']['inverted'] = True 
-                    #update display
-                    updateDisplay(config, pricestack)
-                    with open('config.yaml', 'w') as f:
-                       data = yaml.dump(config, f)
-                    lastcoinfetch=time.time() 
-                    time.sleep(0.2)
-                if key4state == False:
-                    logging.info('HIDE')
-                    if config['ticker']['hidden'] == True:
-                        config['ticker']['hidden'] = False
-                    else:
-                        config['ticker']['hidden'] = True 
-                    updateDisplay(config, pricestack)
-                    time.sleep(0.2)
-                if (time.time() - lastcoinfetch > float(config['ticker']['updatefrequency'])) or (datapulled==False):
+                if (time.time() - lastcoinfetch > float(config['ticker']['updatefrequency'])) or (datapulled == False):
                     # get data
-                    pricestack=getData()
-                    # save time of last data update 
+                    pricestack = getData()
+                    # save time of last data update
                     lastcoinfetch = time.time()
                     # generate sparkline
                     makeSpark(pricestack)
@@ -262,16 +202,17 @@ def main():
                     updateDisplay(config, pricestack)
                     # Note that we've visited the internet
                     datapulled = True
-                    lastcoinfetch=time.time()
+                    lastcoinfetch = time.time()
                     time.sleep(0.2)
 
     except IOError as e:
         logging.info(e)
-    
-    except KeyboardInterrupt:    
+
+    except KeyboardInterrupt:
         logging.info("ctrl + c:")
         epd2in7.epdconfig.module_exit()
         exit()
+
 
 if __name__ == '__main__':
     main()
